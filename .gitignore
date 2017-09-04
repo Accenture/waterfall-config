@@ -2,3 +2,4 @@ target
 .settings
 .project
 .classpath
+application00*.conf
