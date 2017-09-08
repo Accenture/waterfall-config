@@ -34,7 +34,7 @@ import static com.github.sergiofgonzalez.wconf.WaterfallConfig.*;
 
 
 ## Waterfall and Merge
-*wconf* defines a hierarchy between the different configuration property sources it supports, so that properties found in a source with a higher precedence will overwrite properties found in lower sources.
+*wconf* defines a hierarchy between the different configuration property sources it supports, so that properties found in a source with a higher precedence will overwrite properties found in sources with lower precedence.
 
 The precedence is established as follows, from lowest to highest:
 + a file `config/common.conf` packaged in the jar
@@ -48,27 +48,27 @@ For example, if you have:
 + a file `config/application.conf` within the jar with the line `best_actor=Riz Ahmed`
 + an environment variable defined as `best_actor=Idris Elba`
 
-invoking `wconf().get("best_actor")` will render Idris Elba as result. 
+invoking `wconf().get("best_actor")` will render `"Idris Elba"` as result. 
 
-*wconf* also supports merging of configuration properties between sources, so that configuration properties sharing a common component will be merged.
+*wconf* also supports merging of configuration properties between sources, so that configuration properties sharing a common parent component will be merged.
 
 For example, if you have:
 + a file `config/common.conf` with the line `message.greeting=Hello to Jason Isaacs`
 + a file `config/application.conf` with the line `message.farewell=Enjoy your evening`
 
-both `message.greeting` and `message.farewell` will both be available.
+both `message.greeting` and `message.farewell` will be available.
 
 ## Customizing Application Configuration Files
-As stated above, by default *wconf* expects:
+As stated above, by default, *wconf* will try to find properties in the following files:
 + A `config/common.conf` within the jar with the common configuration properties
-+ A `config/application.conf` within the jar with application specific properties
-+ An `application.conf` file with application specific properties not packaged in the jar 
++ A `config/application.conf` within the jar with application-level properties
++ An `application.conf` file with application-level specific properties not packaged in the jar 
 
 While the name for `config/common.conf` cannot be customized *wconf()* allows you to select a custom name for the application configuration by setting the property `application_resource` to a value different from `config/application.conf`.
 
   
 ## Syntax for Configuration Files
-The syntax for configuration files is a JSON superset called *HOCON* that is used by the underlying config library used by *wconf* (see [Typesafehub Config](https://github.com/typesafehub/config#user-content-using-hocon-the-json-superset).
+The syntax for configuration files is a JSON superset called *HOCON* that is used by the library doing all the heavy lifting for *wconf* (see [Typesafehub Config](https://github.com/typesafehub/config#user-content-using-hocon-the-json-superset).
 
 *HOCON* allows you to use plain java-style properties if that is what you like:
 ```
@@ -129,10 +129,10 @@ You can find examples of profile usage in the test section.
 ## Encrypted Properties
 A recurring requirement for configuration properties is the support of symmetric encryption for sensible data such as datasource passwords.
 
-*wconf* features support for flexible encryption of configuration properties using the Java Cryptography Extension (JCE). Please note that you should be aware of the best practices and recommendations when using this feature, as symmetric encryption is useless is the key is distributed or committed to your source code repository.
+*wconf* features support for flexible encryption of configuration properties using the Java Cryptography Extension (JCE). Please note that you should be aware of the best practices and recommendations when using this feature, as symmetric encryption is useless is the key is handled carelessly (distributed without proper control or committed to your source code repository).
 
-Note:
-+ The keystore and key found in the test section is provided for demostration purposes and should not be used in applications.
+**Note**
++ The keystore and key found in the test section is provided for **demonstration purposes** and should **not** be used in applications.
 
 In order to enable encryption you will need the following:
 1. Create a *JCEKS Key Store* with a secret key
@@ -140,7 +140,7 @@ In order to enable encryption you will need the following:
 3. Encrypt the sensitive values using the generated Key Store and encryption details and include them as properties
 
 ### Creating a JCEKS Key Store and Adding a Secret Key
-A JCEKS Key Store is a Java Key Store that allows you to store secret keys for symmetric encryption (typically AES256). The `keytool` utility lets you generate such a Key Store with a somewhat complicated *spell*:
+A JCEKS Key Store is a Java Key Store that allows you to store secret keys for symmetric encryption (typically AES256). The `keytool` JDK utility lets you generate such a Key Store with a somewhat complicated *spell*:
 
 ```bash
 $ keytool -genseckey \
@@ -187,7 +187,7 @@ For example:
 foo="cipher(PiWreyV5lSH8rqPP7/08lu67Lmkqsq0HSlNWImBrXUw=)"
 ```
 
-If you don't know how to generate an encrypted and then encoded in Base64 value, please keep reading.
+If you don't know how to generate an *"encrypted and then encoded in Base64 value"*, please keep reading.
 
 ### Cryptools
 [*Cryptools*](https://github.com/sergiofgonzalez/cryptools) is a simple Java application that can be used to:
