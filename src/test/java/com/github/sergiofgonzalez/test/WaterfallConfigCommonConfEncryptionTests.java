@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
 
 /**
  * Test Cases when:
@@ -23,12 +26,13 @@ import org.junit.Test;
  *
  */
 
+@Category(ActiveTest.class)
 public class WaterfallConfigCommonConfEncryptionTests {
 	
 	@BeforeClass
 	public static void runOnlyOnceOnStart() {
-		System.clearProperty("application_resource");
-		System.setProperty("encryption.enabled", "true");
+		System.clearProperty("wconf_app_properties");
+		System.setProperty("wconf_encryption.enabled", "true");
 	}
 		
 	@Test

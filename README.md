@@ -93,13 +93,10 @@ geniv {
 You can find more usage examples in the link above and in the test resources within the project.
 
 ## Using Profiles
-Another opinionated feature of *wconf* is the profile selection. Using grouping of configuration variables and a configuration property named `profiles.active` lets you activate a portion of the complete application configuration properties.
+Another opinionated feature of *wconf* is the profile selection. Using grouping of configuration variables and a configuration property named `wconf_active_profile` lets you activate a portion of the complete application configuration properties.
 
 ```
-profiles {
-  available: [dev, test, production]
-  active: test
-}
+wconf_active_profile: test
 
 dev {
   foo=bar in dev
@@ -117,7 +114,7 @@ production {
 }
 ```
 
-As `profiles.active` is set to test, `wconf().get(foo)` will render `"bar in test"` as a result.
+As `wconf_active_profile` is set to test, `wconf().get(foo)` will render `"bar in test"` as the result.
 
 Note that when using profiles:
 + Only the specific section of the `config/application.conf` and `application.conf` will be enabled. Information found in other profiles or outside any profile will not be visible to *wconf*.
@@ -153,12 +150,12 @@ The previous command, generates a *JCEKS Key Store* in a file `.\wconf-keystore.
 ### Configuring the Encryption Details in the Configuration
 *wconf* expects the following configuration properties to be defined:
 ```
-encryption {
+wconf_encryption {
   enabled: <true|false>
   algorithm: <the symmetric algorithm to use, e.g. AES/CBC/PKCS5Padding>
-  keyType: <the type of the secret key, e.g. AES>
+  key_type: <the type of the secret key, e.g. AES>
   iv: <the initialization vector for the symmetric encryption process>
-  keystore {
+  key_store {
     path: <the path to the JCEKS key store, e.g. config/wconf-keystore.jceks>
     password: <the keystore password, e.g. mystorepasswd>
     key {
@@ -196,17 +193,24 @@ If you don't know how to generate an *"encrypted and then encoded in Base64 valu
 
 
 ## Reserved Configuration Property Names
-The standardization of reserved configuration property names is a **work in progress** and therefore **subject to change in the near future**. 
+The configuration properties used to configure *wconf* are always prepended with `wconf_` and are reserved.
 
-The current list of reserved property names and descriptions is the following:
+The current list all these reserved property names and their descriptions:
 
 | Reserved Property Name | Description | Default|
 |------------------------|-------------|--------|
-| application_resource   | identifies the path and filename of the application level configuration file. | config/application.conf |
-| profiles.active        | identifies the portion of the application level configuration that will be activated | n/a |
-| encryption.enabled     | switches encryption support on and off | false |
-| encryption.*           | tailors the encryption details for handling encrypted values in common and application level configuration | n/a |
+| wconf_application_props   | identifies the path and filename of the application level configuration file. | config/application.conf |
+| wconf_active_profile  | identifies the portion of the application level configuration that will be activated | n/a |
+| wconf_encryption.enabled | switches encryption support on and off | false |
+| wconf_encryption.algorithm | the string representing the symmetric algorithm to use, e.g. "AES/CBC/PKCS5Padding" | n/a |
+| wconf_encryption.key_type | the string representing the type of symmetric key found in the key store, e.g. "AES" | n/a |
+| wconf_encryption.iv | the initialization vector for the symmetric encryption process, encoded in base 64 | n/a |
+| wconf_encryption.key_store.path | the path to the JCEKS key store, which can be a path to a resource within the jar, e.g. config/wconf-keystore.jceks | n/a |
+| wconf_encryption.key_store.password | the key store password, e.g. mystorepasswd | n/a |
+| wconf_encryption.key_store.key.alias | the key alias, that is the string, used to identify the key to use for the symmetric encryption from the ones defined in the key store,  e.g.wconf-secret-key | n/a |
+| wconf_encryption.key_store.key.password | the password key that provides access to the key to use for the symmetric encryption, e.g. mykeypasswd | n/a |
 
+Note that the variables susceptible of being overridden by environment variables do not use `.` as there are operating systems that prevent variables such as `profile.active` from being defined.
 
 ## Implementation Details and Recommendations
 *wconf* is defined as an eagerly-loaded singleton that loads and preconfigures the *Typesafehub Config* framework according to a set of predefined choices.

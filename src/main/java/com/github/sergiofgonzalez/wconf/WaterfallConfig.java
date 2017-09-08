@@ -29,9 +29,12 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import static com.github.sergiofgonzalez.wconf.MetaConfigKeys.*;
 
 /**
- * Eagerly loaded Singleton 
+ * Eagerly loaded Singleton supporting wconf()
+ * 
+ * Use wconf() to access the API that provide access to the 
  *
  */
 public class WaterfallConfig {
@@ -45,11 +48,8 @@ public class WaterfallConfig {
 	private boolean isEncryptionEnabled;
 	private Config config;
 	private Cipher cipher;
-	
-	
+		
 	private String REFERENCE_RESOURCE = "config/common.conf";
-	private String META_CONFIG_APP_RESOURCE_PATH = "application_resource";
-	private String META_CONFIG_ENCRYPTION_SWITCH_PATH = "encryption.enabled";
 	private String DEFAULT_APPLICATION_RESOURCE = "config/application.conf";
 
 	
@@ -65,7 +65,7 @@ public class WaterfallConfig {
 		Config tempConfig = commonProps
 								.withFallback(ConfigFactory.systemEnvironment())
 								.withFallback(ConfigFactory.systemProperties());
-		String appResource = tempConfig.hasPath(META_CONFIG_APP_RESOURCE_PATH)? tempConfig.getString(META_CONFIG_APP_RESOURCE_PATH) : DEFAULT_APPLICATION_RESOURCE;
+		String appResource = tempConfig.hasPath(META_CONFIG_APP_RESOURCE_KEY.toString())? tempConfig.getString(META_CONFIG_APP_RESOURCE_KEY.toString()) : DEFAULT_APPLICATION_RESOURCE;
 		String externalAppResource = Paths.get(appResource).getFileName().toString();
 		
 		/* Load props found outside the JAR */
@@ -88,8 +88,8 @@ public class WaterfallConfig {
 						.withFallback(commonProps);
 		
 		/* restrict conf properties to the specified profile if found */
-		if (conf.hasPath("profiles.active")) {
-			String activeProfile = conf.getString("profiles.active");
+		if (conf.hasPath(META_CONFIG_ACTIVE_PROFILE_KEY.toString())) {
+			String activeProfile = conf.getString(META_CONFIG_ACTIVE_PROFILE_KEY.toString());
 			
 			
 			if (applicationPropsFoundOutsideJar.hasPath(activeProfile)) {
@@ -116,16 +116,16 @@ public class WaterfallConfig {
 		
 		
 		/* Apply encryption if enabled */
-		isEncryptionEnabled = config.hasPath(META_CONFIG_ENCRYPTION_SWITCH_PATH) ? config.getBoolean(META_CONFIG_ENCRYPTION_SWITCH_PATH) : false;
+		isEncryptionEnabled = config.hasPath(META_CONFIG_ENCRYPTION_SWITCH_KEY.toString()) ? config.getBoolean(META_CONFIG_ENCRYPTION_SWITCH_KEY.toString()) : false;
 		
 		if (isEncryptionEnabled) {
-			String encryptionAlgorithm = config.getString("encryption.algorithm");
-			String keyType = config.getString("encryption.keyType");
-			String keystorePath = config.getString("encryption.keystore.path");
-			String keyStorePassword = config.getString("encryption.keystore.password");
-			String configSecretKeyAlias = config.getString("encryption.keystore.key.alias");
-			String configSecretKeyPassword = config.getString("encryption.keystore.key.password");
-			String encodedInitializationVector = config.getString("encryption.iv");
+			String encryptionAlgorithm = config.getString(META_CONFIG_ENCRYPTION_ALGORITHM_KEY.toString());
+			String keyType = config.getString(META_CONFIG_ENCRYPTION_KEY_TYPE_KEY.toString());
+			String keystorePath = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_PATH_KEY.toString());
+			String keyStorePassword = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_PASSWORD_KEY.toString());
+			String configSecretKeyAlias = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_KEY_ALIAS_KEY.toString());
+			String configSecretKeyPassword = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_KEY_PASSWORD_KEY.toString());
+			String encodedInitializationVector = config.getString(META_CONFIG_ENCRYPTION_IV_KEY.toString());
 		
 			try (InputStream keystoreStream = WaterfallConfig.class.getClassLoader().getResourceAsStream(keystorePath)) {
 				KeyStore keyStore = KeyStore.getInstance("JCEKS");
@@ -155,10 +155,22 @@ public class WaterfallConfig {
 		LOGGER.debug("Encryption configured: {}", isEncryptionEnabled);
 	}
 	
+	/**
+	 * Returns an instance of the configuration objects that can be used to read
+	 * the configuration properties.
+	 *  
+	 * @return 
+	 */
 	public static WaterfallConfig wconf() {
 		return uniqueInstance;
 	}
 	
+	/**
+	 * Obtains the string representation of a configuration parameter.
+	 * 
+	 * @param key the key of the configuration parameter to retrieve
+	 * @return the string value associated to the key
+	 */
 	public String get(String key) {
 		Instant start = Instant.now();
 		String value = uniqueInstance.config.getString(key);
@@ -181,6 +193,13 @@ public class WaterfallConfig {
 		return value;
 	}
 	
+	/**
+	 * <b>Experimental</b>
+	 * Obtains the list of strings for a given configuration property key 
+	 * @param key the property key of the value to retrieved
+	 * @param isMultivalued a dummy parameter used to indicate we're interested in a multivalued property
+	 * @return the list of values associated to the given property key
+	 */
 	public List<String> get(String key, boolean isMultivalued) {
 		Instant start = Instant.now();
 		List<String> values = uniqueInstance.config.getStringList(key);

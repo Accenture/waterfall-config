@@ -10,6 +10,9 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
 import com.typesafe.config.ConfigException;
 
 import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
@@ -29,15 +32,13 @@ import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
  *
  */
 
+@Category(ActiveTest.class)
 public class WaterfallConfigExtConfNoEncryptionProfilesTests {
 	
 	private static final Path extConfPath = Paths.get("application006.conf").toAbsolutePath();
 	
 	private static final List<String> EXTERNAL_CONF_CONTENTS = Arrays.asList(
-			"profiles {",
-			"  available: [dev, test, production]",
-			"  active: test",
-			"}",
+			"wconf_active_profile: test",
 			"dev {",
 			"  value_defined_in_dev=This value has been taken from dev profile in application006.conf",
 			"  value_defined_in_all_profiles=This value has been taken from dev profile in application006.conf",
@@ -61,7 +62,7 @@ public class WaterfallConfigExtConfNoEncryptionProfilesTests {
 	public static void runOnlyOnceOnStart() {
 		deleteBeforeTest(extConfPath);
 		writeFileBeforeTest(extConfPath, EXTERNAL_CONF_CONTENTS);		
-		System.setProperty("application_resource", "config/application006.conf");		
+		System.setProperty("wconf_app_properties", "config/application006.conf");		
 	}
 		
 	@Test

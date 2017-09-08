@@ -4,6 +4,9 @@ import static com.github.sergiofgonzalez.wconf.WaterfallConfig.wconf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
 
 /**
  * Test Cases when:
@@ -23,6 +26,7 @@ import org.junit.Test;
  *
  */
 
+@Category(ActiveTest.class)
 public class WaterfallConfigCommonConfNoEncryptionTests {
 	
 	@Test

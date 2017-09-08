@@ -10,6 +10,10 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
+
 import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
 
 /**
@@ -26,17 +30,18 @@ import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
  *
  */
 
+@Category(ActiveTest.class)
 public class WaterfallConfigExtConfEncryptionNoProfilesTests {
 	
 	private static final Path extConfPath = Paths.get("application007.conf").toAbsolutePath();
 	
 	private static final List<String> EXTERNAL_CONF_CONTENTS = Arrays.asList(
-			"encryption {",
+			"wconf_encryption {",
 			"  enabled: true",
 			"  algorithm: AES/CBC/PKCS5Padding",
-			"  keyType: AES",
+			"  key_type: AES",
 			"  iv: \"D3IwGkX2iRtIVE46CwdOEg==\"",
-			"  keystore {",
+			"  key_store {",
 			"    path: config/wconf-keystore.jceks",
 			"    password: mystorepasswd",
 			"    key {",
@@ -53,7 +58,7 @@ public class WaterfallConfigExtConfEncryptionNoProfilesTests {
 	public static void runOnlyOnceOnStart() {
 		deleteBeforeTest(extConfPath);
 		writeFileBeforeTest(extConfPath, EXTERNAL_CONF_CONTENTS);		
-		System.setProperty("application_resource", "config/application007.conf");		
+		System.setProperty("wconf_app_properties", "config/application007.conf");		
 	}
 	
 	

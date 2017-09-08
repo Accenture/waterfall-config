@@ -10,6 +10,10 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
+
 import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
 
 /**
@@ -26,26 +30,25 @@ import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
  *
  */
 
+@Category(ActiveTest.class)
 public class WaterfallConfigExtConfEncryptionProfilesTests {
 	
 	private static final Path extConfPath = Paths.get("application008.conf").toAbsolutePath();
 	
 	private static final List<String> EXTERNAL_CONF_CONTENTS = Arrays.asList(
-			"profiles {",
-			"  available: [dev, test, production]",
-			"  active: test",
+			"wconf_active_profile: test",
 			"}",
 			"dev {",
 			"  value_defined_in_dev=This value has been taken from dev profile in application008.conf",
 			"  value_defined_in_all_profiles=This value has been taken from dev profile in application008.conf",
 			"}",
 			"test {",
-			"  encryption {",
+			"  wconf_encryption {",
 			"    enabled: true",
 			"    algorithm: \"AES/CBC/PKCS5Padding\"",
-			"    keyType: AES",
+			"    key_type: AES",
 			"    iv: \"D3IwGkX2iRtIVE46CwdOEg==\"",
-			"    keystore {",
+			"    key_store {",
 			"      path: config/wconf-keystore.jceks",
 			"      password: mystorepasswd",
 			"      key {",

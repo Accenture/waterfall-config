@@ -10,6 +10,10 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
+
 import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
 
 /**
@@ -27,6 +31,7 @@ import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
  *
  */
 
+@Category(ActiveTest.class)
 public class WaterfallConfigExtConfNoEncryptionNoProfilesTests {
 	
 	private static final Path extConfPath = Paths.get("application005.conf").toAbsolutePath();
@@ -38,7 +43,7 @@ public class WaterfallConfigExtConfNoEncryptionNoProfilesTests {
 			"in_app005_and_env_var=This value has been set on application005.conf",
 			"in_app005_and_java_property=This value has been set on application005.conf",
 			"in_app005_and_env_var_and_property=This value has been set on application005.conf",
-			"encryption {",
+			"wconf_encryption {",
 			"  enabled: false",
 			"}",
 			"encrypted_value_in_app005=\"cipher(PiWreyV5lSH8rqPP7/08lu67Lmkqsq0HSlNWImBrXUw=)\""
@@ -48,7 +53,7 @@ public class WaterfallConfigExtConfNoEncryptionNoProfilesTests {
 	public static void runOnlyOnceOnStart() {
 		deleteBeforeTest(extConfPath);
 		writeFileBeforeTest(extConfPath, EXTERNAL_CONF_CONTENTS);		
-		System.setProperty("application_resource", "config/application005.conf");		
+		System.setProperty("wconf_app_properties", "config/application005.conf");		
 	}
 	
 	

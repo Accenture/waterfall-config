@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
 import com.typesafe.config.ConfigException;
 
 /**
@@ -23,11 +26,12 @@ import com.typesafe.config.ConfigException;
  *
  */
 
+@Category(ActiveTest.class)
 public class WaterfallConfigAppConfNoEncryptionProfilesTests {
 	
 	@BeforeClass
 	public static void runOnlyOnceOnStart() {
-		System.setProperty("application_resource", "config/application003.conf");		
+		System.setProperty("wconf_app_properties", "config/application003.conf");		
 	}
 	
 	@Test
