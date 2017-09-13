@@ -199,7 +199,7 @@ The current list all these reserved property names and their descriptions:
 
 | Reserved Property Name | Description | Default|
 |------------------------|-------------|--------|
-| wconf_application_props   | identifies the path and filename of the application level configuration file. | config/application.conf |
+| wconf_app_properties | identifies the path and filename of the application level configuration file. | config/application.conf |
 | wconf_active_profile  | identifies the portion of the application level configuration that will be activated | n/a |
 | wconf_encryption.enabled | switches encryption support on and off | false |
 | wconf_encryption.algorithm | the string representing the symmetric algorithm to use, e.g. "AES/CBC/PKCS5Padding" | n/a |
