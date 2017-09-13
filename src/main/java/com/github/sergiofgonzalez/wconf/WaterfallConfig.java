@@ -156,10 +156,9 @@ public class WaterfallConfig {
 	}
 	
 	/**
-	 * Returns an instance of the configuration objects that can be used to read
-	 * the configuration properties.
+	 * Access method to the configuration object
 	 *  
-	 * @return 
+	 * @return an instance of the configuration object that provide access to the configuration properties
 	 */
 	public static WaterfallConfig wconf() {
 		return uniqueInstance;
