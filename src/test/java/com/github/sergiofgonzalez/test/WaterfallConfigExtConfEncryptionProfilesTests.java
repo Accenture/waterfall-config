@@ -49,7 +49,7 @@ public class WaterfallConfigExtConfEncryptionProfilesTests {
 			"    key_type: AES",
 			"    iv: \"D3IwGkX2iRtIVE46CwdOEg==\"",
 			"    key_store {",
-			"      path: config/wconf-keystore.jceks",
+			"      path: \"classpath://config/wconf-keystore.jceks\"",
 			"      password: mystorepasswd",
 			"      key {",
 			"        alias: wconf-secret-key",

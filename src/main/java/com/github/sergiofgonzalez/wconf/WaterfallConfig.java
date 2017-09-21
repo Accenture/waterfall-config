@@ -1,5 +1,6 @@
 package com.github.sergiofgonzalez.wconf;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -70,6 +71,7 @@ public class WaterfallConfig {
 		
 		/* Load props found outside the JAR */
 		Config applicationPropsFoundOutsideJar = ConfigFactory.parseFile(Paths.get(externalAppResource).toFile());
+
 		
 		/* Load props from environment vars */
 		Config environmentVariablesProps = ConfigFactory.systemEnvironment();
@@ -127,7 +129,7 @@ public class WaterfallConfig {
 			String configSecretKeyPassword = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_KEY_PASSWORD_KEY.toString());
 			String encodedInitializationVector = config.getString(META_CONFIG_ENCRYPTION_IV_KEY.toString());
 		
-			try (InputStream keystoreStream = WaterfallConfig.class.getClassLoader().getResourceAsStream(keystorePath)) {
+			try (InputStream keystoreStream = classpathAwareInputStreamFactory(keystorePath)) {
 				KeyStore keyStore = KeyStore.getInstance("JCEKS");
 				keyStore.load(keystoreStream, keyStorePassword.toCharArray());
 				
@@ -206,4 +208,13 @@ public class WaterfallConfig {
 		return values;
 	}
 	
+	
+	private static InputStream classpathAwareInputStreamFactory(String filePath) throws IOException {
+		if (filePath.startsWith("classpath://")) {
+			String internalPath = filePath.substring("classpath://".length());
+			return WaterfallConfig.class.getClassLoader().getResourceAsStream(internalPath);			
+		} else {
+			return new FileInputStream(filePath);
+		}		
+	}
 }

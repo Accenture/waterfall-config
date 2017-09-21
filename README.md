@@ -156,7 +156,7 @@ wconf_encryption {
   key_type: <the type of the secret key, e.g. AES>
   iv: <the initialization vector for the symmetric encryption process>
   key_store {
-    path: <the path to the JCEKS key store, e.g. config/wconf-keystore.jceks>
+    path: <the path to the JCEKS key store, to scan the JAR prefix with "classpath://", e.g. classpath://config/wconf-keystore.jceks>
     password: <the keystore password, e.g. mystorepasswd>
     key {
       alias: <the key alias, e.g.wconf-secret-key>
