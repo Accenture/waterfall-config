@@ -79,7 +79,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.20</version>
         <configuration>
-          <!-- uncomment to run only the tests tagged with @Category(ActiveTest.class)
+          <!-- uncomment to run only the tests tagged with @Category(ActiveTest.class) 
           <groups>com.github.sergiofgonzalez.test.utils.categories.ActiveTest</groups> 
           -->
           <reuseForks>false</reuseForks>
@@ -98,7 +98,10 @@
             <include>WaterfallConfigExtConfNoEncryptionNoProfilesTests</include>
             <include>WaterfallConfigExtConfEncryptionNoProfilesTests</include>
             <include>WaterfallConfigExtConfNoEncryptionProfilesTests</include>
-            <include></include>
+            
+            <!-- Errors Raised Tests -->
+            <include>WaterfallConfigEncryptionUnexistingKeyErrorTests</include>
+            <include>WaterfallConfigEncryptionUnexistingAlgorithmErrorTests</include>
           </includes>
           <environmentVariables>
             <in_common_but_overridden_by_env>This value has been set in an environment variable</in_common_but_overridden_by_env>

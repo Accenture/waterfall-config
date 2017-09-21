@@ -2,7 +2,6 @@ package com.github.sergiofgonzalez.test;
 
 import static com.github.sergiofgonzalez.wconf.WaterfallConfig.wconf;
 import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -69,5 +68,10 @@ public class WaterfallConfigCommonConfEncryptionTests {
 	public void testReadEncryptedPropFromEnvVarAndJavaSystemProperty() {
 		String value = wconf().get("encrypted_value_in_env_var_and_system_prop");
 		assertThat(value).isEqualTo("This value has been encrypted and put in an environment variable");	
-	}		
+	}	
+		
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadIncorrectCipher() {
+		wconf().get("encrypted_value_incorrect_cipher");
+	}
 }
