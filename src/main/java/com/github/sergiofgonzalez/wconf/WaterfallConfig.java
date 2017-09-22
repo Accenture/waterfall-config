@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -15,6 +16,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -63,14 +65,33 @@ public class WaterfallConfig {
 		Config commonProps = ConfigFactory.parseResourcesAnySyntax(REFERENCE_RESOURCE).resolve();
 		
 		/* Compute app resource name */
-		Config tempConfig = commonProps
-								.withFallback(ConfigFactory.systemEnvironment())
-								.withFallback(ConfigFactory.systemProperties());
+		Config tempConfig = ConfigFactory.systemEnvironment()
+								.withFallback(ConfigFactory.systemProperties())
+								.withFallback(commonProps);
+
 		String appResource = tempConfig.hasPath(META_CONFIG_APP_RESOURCE_KEY.toString())? tempConfig.getString(META_CONFIG_APP_RESOURCE_KEY.toString()) : DEFAULT_APPLICATION_RESOURCE;
 		String externalAppResource = Paths.get(appResource).getFileName().toString();
 		
-		/* Load props found outside the JAR */
-		Config applicationPropsFoundOutsideJar = ConfigFactory.parseFile(Paths.get(externalAppResource).toFile());
+		/* Load props found outside the JAR: allowing scanning of additional external paths */
+		List<String> externalPaths = new ArrayList<String>();
+		if (tempConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {
+			externalPaths.addAll(tempConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
+		} else {
+			externalPaths.add("./");
+		}
+		Config applicationPropsFoundOutsideJar = null;
+		for (String externalAppPathPrefix : externalPaths) {
+			Path externalPropFilePath = Paths.get(externalAppPathPrefix, externalAppResource);
+			applicationPropsFoundOutsideJar = ConfigFactory.parseFile(externalPropFilePath.toFile());
+			if (!applicationPropsFoundOutsideJar.isEmpty()) {
+				LOGGER.debug("External application properties file found in {}", externalPropFilePath.toAbsolutePath());
+				break;
+			}
+		}
+		
+		if (applicationPropsFoundOutsideJar.isEmpty()) {
+			LOGGER.debug("No configuration properties found outside the JAR for {} in {}", externalAppResource, externalPaths);
+		}
 
 		
 		/* Load props from environment vars */
@@ -135,7 +156,7 @@ public class WaterfallConfig {
 				
 				if (!keyStore.containsAlias(configSecretKeyAlias)) {
 					LOGGER.error("The key {} was not found in the key store {}", configSecretKeyAlias, keyStore);
-					throw new IllegalStateException("Could not found the expected key in the provided keystore");
+					throw new IllegalStateException("Could not find the expected key in the provided keystore");
 				}
 				
 				Key aesKey = keyStore.getKey(configSecretKeyAlias, configSecretKeyPassword.toCharArray());	

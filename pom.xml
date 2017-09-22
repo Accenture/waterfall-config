@@ -102,6 +102,9 @@
             <!-- Errors Raised Tests -->
             <include>WaterfallConfigEncryptionUnexistingKeyErrorTests</include>
             <include>WaterfallConfigEncryptionUnexistingAlgorithmErrorTests</include>
+            
+            <!-- Scanning of External Paths Tests -->
+            <include>WaterfallConfigExtPathTests</include>
           </includes>
           <environmentVariables>
             <in_common_but_overridden_by_env>This value has been set in an environment variable</in_common_but_overridden_by_env>

@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -68,11 +69,15 @@ public class WaterfallConfigExtConfEncryptionProfilesTests {
 	
 	@BeforeClass
 	public static void runOnlyOnceOnStart() {
-		deleteBeforeTest(extConfPath);
+		deleteTestResource(extConfPath);
 		writeFileBeforeTest(extConfPath, EXTERNAL_CONF_CONTENTS);		
-		System.setProperty("application_resource", "config/application008.conf");		
+		System.setProperty("application_resource", "config/application008.conf");
 	}
 	
+	@AfterClass
+	public static void runOnlyOnceOnEnd() {
+		deleteTestResource(extConfPath);
+	}
 	
 	@Test
 	public void testReadEncryptedPropFromConfFile() {		

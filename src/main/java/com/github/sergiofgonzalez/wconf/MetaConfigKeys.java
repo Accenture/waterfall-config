@@ -11,6 +11,7 @@ package com.github.sergiofgonzalez.wconf;
  */
 public enum MetaConfigKeys {
 	META_CONFIG_APP_RESOURCE_KEY("wconf_app_properties"),
+	META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS("wconf_ext_app_properties_paths"),
 	META_CONFIG_ACTIVE_PROFILE_KEY("wconf_active_profile"),
 	META_CONFIG_ENCRYPTION_SWITCH_KEY("wconf_encryption.enabled"),
 	META_CONFIG_ENCRYPTION_ALGORITHM_KEY("wconf_encryption.algorithm"),

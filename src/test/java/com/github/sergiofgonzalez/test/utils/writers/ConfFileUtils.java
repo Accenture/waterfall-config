@@ -17,11 +17,11 @@ public class ConfFileUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfFileUtils.class);
 	
 	public static void writeFileBeforeTest(Path path, List<String> contents) {
-		deleteBeforeTest(path);
+		deleteTestResource(path);
 		writeContentsAsText(path, contents);
 	}
 	
-	public static void deleteBeforeTest(Path path) {
+	public static void deleteTestResource(Path path) {
 		LOGGER.debug("About to delete {} (if exists)", path);
 		try {
 			Files.deleteIfExists(path);
@@ -29,6 +29,14 @@ public class ConfFileUtils {
 			LOGGER.error("Could not delete file {}", path, e);
 			throw new IllegalStateException(e);
 		}		
+	}
+	
+	public static void copyFileBeforeTest(Path srcFilePath, Path tgtFilePath) {
+		try {
+			Files.copy(srcFilePath, tgtFilePath);
+		} catch (IOException e) {
+			LOGGER.error("Could not perform copy operation {} => {}", srcFilePath, tgtFilePath, e);
+		}
 	}
 	
 	private static void writeContentsAsText(Path path, List<String> contents) {
@@ -46,5 +54,5 @@ public class ConfFileUtils {
 		if (!Files.exists(path)) {
 			throw new IllegalStateException("Somehow, created file was not accessible");
 		}
-	}
+	}	
 }

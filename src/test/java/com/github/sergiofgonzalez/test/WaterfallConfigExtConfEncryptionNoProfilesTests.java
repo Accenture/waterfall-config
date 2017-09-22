@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -33,7 +34,9 @@ import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
 @Category(ActiveTest.class)
 public class WaterfallConfigExtConfEncryptionNoProfilesTests {
 	
-	private static final Path extConfPath = Paths.get("application007.conf").toAbsolutePath();
+	private static final Path EXT_CONF_PATH = Paths.get("application007.conf").toAbsolutePath();
+	private static final Path EXT_KEYSTORE_PATH = Paths.get("ext-wconf-keystore.jceks").toAbsolutePath();
+	private static final Path INT_KEYSTORE_PATH = Paths.get("src", "test", "resources", "config", "wconf-keystore.jceks");
 	
 	private static final List<String> EXTERNAL_CONF_CONTENTS = Arrays.asList(
 			"wconf_encryption {",
@@ -42,7 +45,7 @@ public class WaterfallConfigExtConfEncryptionNoProfilesTests {
 			"  key_type: AES",
 			"  iv: \"D3IwGkX2iRtIVE46CwdOEg==\"",
 			"  key_store {",
-			"    path: \"classpath://config/wconf-keystore.jceks\"",
+			"    path: \"./ext-wconf-keystore.jceks\"",
 			"    password: mystorepasswd",
 			"    key {",
 			"      alias: wconf-secret-key",
@@ -56,11 +59,18 @@ public class WaterfallConfigExtConfEncryptionNoProfilesTests {
 	
 	@BeforeClass
 	public static void runOnlyOnceOnStart() {
-		deleteBeforeTest(extConfPath);
-		writeFileBeforeTest(extConfPath, EXTERNAL_CONF_CONTENTS);		
-		System.setProperty("wconf_app_properties", "config/application007.conf");		
+		deleteTestResource(EXT_CONF_PATH);
+		deleteTestResource(EXT_KEYSTORE_PATH);
+		writeFileBeforeTest(EXT_CONF_PATH, EXTERNAL_CONF_CONTENTS);
+		copyFileBeforeTest(INT_KEYSTORE_PATH, EXT_KEYSTORE_PATH);
+		System.setProperty("wconf_app_properties", "config/application007.conf");
 	}
 	
+	@AfterClass
+	public static void runOnlyOnceOnEnd() {
+		deleteTestResource(EXT_CONF_PATH);
+		deleteTestResource(EXT_KEYSTORE_PATH);		
+	}
 	
 	@Test
 	public void testReadEncryptedPropFromConfFile() {		

@@ -1,7 +1,6 @@
 package com.github.sergiofgonzalez.test;
 
 import static com.github.sergiofgonzalez.wconf.WaterfallConfig.wconf;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.security.NoSuchAlgorithmException;

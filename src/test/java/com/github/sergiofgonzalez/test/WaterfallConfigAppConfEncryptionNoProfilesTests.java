@@ -31,6 +31,7 @@ public class WaterfallConfigAppConfEncryptionNoProfilesTests {
 	@BeforeClass
 	public static void runOnlyOnceOnStart() {
 		System.setProperty("wconf_app_properties", "config/application002.conf");		
+		System.setProperty("incorrect_encrypted_value", "cipher(thisisnotacipher)");
 	}
 	
 	@Test
@@ -49,5 +50,10 @@ public class WaterfallConfigAppConfEncryptionNoProfilesTests {
 	public void testReadEncryptedPropFromEnvironmentVar() {
 		String value = wconf().get("encrypted_value_in_env_var");
 		assertThat(value).isEqualTo("This value has been encrypted and put in an environment variable");	
-	}	
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadIncorrectCipher() {
+		wconf().get("incorrect_encrypted_value");
+	}
 }
