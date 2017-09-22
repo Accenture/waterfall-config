@@ -142,10 +142,10 @@ A JCEKS Key Store is a Java Key Store that allows you to store secret keys for s
 ```bash
 $ keytool -genseckey \
 -alias wconf-secret-key -keyalg AES -keysize 256 -keypass mykeypasswd \
--storetype JCEKS -storepass mystorepasswd -keystore .\wconf-keystore.jceks
+-storetype JCEKS -storepass mystorepasswd -keystore ./wconf-keystore.jceks
 ```
 
-The previous command, generates a *JCEKS Key Store* in a file `.\wconf-keystore.jceks` with a Key Store password `mystorepasswd` and saves in it an AES256 secret key you can use for symmetric encryption. The key is assigned the alias `wconf-secret-key` and protects the key access (facepalm) with the password `mykeypasswd`. 
+The previous command, generates a *JCEKS Key Store* in a file `./wconf-keystore.jceks` with a Key Store password `mystorepasswd` and saves in it an AES256 secret key you can use for symmetric encryption. The key is assigned the alias `wconf-secret-key` and protects the key access (facepalm) with the password `mykeypasswd`. 
 
 ### Configuring the Encryption Details in the Configuration
 *wconf* expects the following configuration properties to be defined:
