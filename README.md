@@ -66,6 +66,20 @@ As stated above, by default, *wconf* will try to find properties in the followin
 
 While the name for `config/common.conf` cannot be customized *wconf()* allows you to select a custom name for the application configuration by setting the property `application_resource` to a value different from `config/application.conf`.
 
+The config key `wconf_ext_app_properties_paths` can be used to customize the paths that will be scanned while looking for the application-level specific properties not packaged in the jar. The default for this value is `[ "./" ]`. You will typically want to specify such value for your application in `common.conf`:
+```
+wconf_ext_app_properties_paths=[ "./", "/tmp/", "/shared-volume/" ]
+```
+
+but it can also be specified using environment variables and properties using the syntax:
+```
+-D wconf_ext_app_properties_paths.0="./" \
+-D wconf_ext_app_properties_paths.1="./tmp/" \
+-D wconf_ext_app_properties_paths.2="./shared-volume/"
+```
+  
+**Note**
+Setting the value of `wconf_ext_app_properties_paths` in the application-level property file will have **no effect**, as this value is needed in creation time while the application level property source is being discovered.  
   
 ## Syntax for Configuration Files
 The syntax for configuration files is a JSON superset called *HOCON* that is used by the library doing all the heavy lifting for *wconf* (see [Typesafehub Config](https://github.com/typesafehub/config#user-content-using-hocon-the-json-superset).
@@ -200,6 +214,7 @@ The current list all these reserved property names and their descriptions:
 | Reserved Property Name | Description | Default|
 |------------------------|-------------|--------|
 | wconf_app_properties | identifies the path and filename of the application level configuration file. | config/application.conf |
+| wconf_ext_app_properties_paths | an optional list of paths that will be scanned when looking for the application level configuration file outside the jar | [ "./" ] |
 | wconf_active_profile  | identifies the portion of the application level configuration that will be activated | n/a |
 | wconf_encryption.enabled | switches encryption support on and off | false |
 | wconf_encryption.algorithm | the string representing the symmetric algorithm to use, e.g. "AES/CBC/PKCS5Padding" | n/a |
