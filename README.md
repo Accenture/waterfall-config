@@ -11,7 +11,7 @@ Modify your `pom.xml` to add a dependency for *wconf*:
     <dependency>
       <groupId>com.github.sergiofgonzalez</groupId>
       <artifactId>waterfall-config</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
 ```
 
