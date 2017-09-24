@@ -37,7 +37,7 @@ import static com.github.sergiofgonzalez.wconf.MetaConfigKeys.*;
 /**
  * Eagerly loaded Singleton supporting wconf()
  * 
- * Use wconf() to access the API that provide access to the 
+ * Use wconf() to access the API that provide access to the configuration properties
  *
  */
 public class WaterfallConfig {
@@ -64,35 +64,17 @@ public class WaterfallConfig {
 		/* Load common props as a resource: It's assumed it's found inside the JAR */
 		Config commonProps = ConfigFactory.parseResourcesAnySyntax(REFERENCE_RESOURCE).resolve();
 		
-		/* Compute app resource name */
-		Config tempConfig = ConfigFactory.systemEnvironment()
-								.withFallback(ConfigFactory.systemProperties())
-								.withFallback(commonProps);
+		/* Load bootstrapConfig that will let us tailor how other config props are discovered */
+		Config bootstrapConfig = ConfigFactory.systemEnvironment()
+									.withFallback(ConfigFactory.systemProperties())
+									.withFallback(commonProps);
 
-		String appResource = tempConfig.hasPath(META_CONFIG_APP_RESOURCE_KEY.toString())? tempConfig.getString(META_CONFIG_APP_RESOURCE_KEY.toString()) : DEFAULT_APPLICATION_RESOURCE;
-		String externalAppResource = Paths.get(appResource).getFileName().toString();
+		/* obtain application-level property (if any) and external application-level property (if any) */
+		String appResource = bootstrapConfig.hasPath(META_CONFIG_APP_RESOURCE_KEY.toString())? bootstrapConfig.getString(META_CONFIG_APP_RESOURCE_KEY.toString()) : DEFAULT_APPLICATION_RESOURCE;
+
 		
 		/* Load props found outside the JAR: allowing scanning of additional external paths */
-		List<String> externalPaths = new ArrayList<String>();
-		if (tempConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {
-			externalPaths.addAll(tempConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
-		} else {
-			externalPaths.add("./");
-		}
-		Config applicationPropsFoundOutsideJar = null;
-		for (String externalAppPathPrefix : externalPaths) {
-			Path externalPropFilePath = Paths.get(externalAppPathPrefix, externalAppResource);
-			applicationPropsFoundOutsideJar = ConfigFactory.parseFile(externalPropFilePath.toFile());
-			if (!applicationPropsFoundOutsideJar.isEmpty()) {
-				LOGGER.debug("External application properties file found in {}", externalPropFilePath.toAbsolutePath());
-				break;
-			}
-		}
-		
-		if (applicationPropsFoundOutsideJar.isEmpty()) {
-			LOGGER.debug("No configuration properties found outside the JAR for {} in {}", externalAppResource, externalPaths);
-		}
-
+		Config applicationPropsFoundOutsideJar = getApplicationPropsFromExternalFile(bootstrapConfig, appResource);
 		
 		/* Load props from environment vars */
 		Config environmentVariablesProps = ConfigFactory.systemEnvironment();
@@ -110,67 +92,17 @@ public class WaterfallConfig {
 						.withFallback(applicationProps)
 						.withFallback(commonProps);
 		
-		/* restrict conf properties to the specified profile if found */
+		/* restrict conf properties to the specified profile if found */	
 		if (conf.hasPath(META_CONFIG_ACTIVE_PROFILE_KEY.toString())) {
-			String activeProfile = conf.getString(META_CONFIG_ACTIVE_PROFILE_KEY.toString());
-			
-			
-			if (applicationPropsFoundOutsideJar.hasPath(activeProfile)) {
-				config = applicationPropsFoundOutsideJar.getConfig(activeProfile)
-							.withFallback(environmentVariablesProps)
-							.withFallback(javaSystemProps);
-			} else {
-				config = environmentVariablesProps
-							.withFallback(javaSystemProps);
-			}
-			
-			if (applicationProps.hasPath(activeProfile)) {
-				config = config
-							.withFallback(applicationProps.getConfig(activeProfile));
-			}
-
-			config = config
-						.withFallback(commonProps);
-
+			config = applyProfileToConfig(conf, applicationPropsFoundOutsideJar, environmentVariablesProps, javaSystemProps, applicationProps, commonProps);
 		} else {
 			config = conf;
-		}
-
-		
+		}		
 		
 		/* Apply encryption if enabled */
-		isEncryptionEnabled = config.hasPath(META_CONFIG_ENCRYPTION_SWITCH_KEY.toString()) ? config.getBoolean(META_CONFIG_ENCRYPTION_SWITCH_KEY.toString()) : false;
-		
+		isEncryptionEnabled = config.hasPath(META_CONFIG_ENCRYPTION_SWITCH_KEY.toString()) ? config.getBoolean(META_CONFIG_ENCRYPTION_SWITCH_KEY.toString()) : false;		
 		if (isEncryptionEnabled) {
-			String encryptionAlgorithm = config.getString(META_CONFIG_ENCRYPTION_ALGORITHM_KEY.toString());
-			String keyType = config.getString(META_CONFIG_ENCRYPTION_KEY_TYPE_KEY.toString());
-			String keystorePath = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_PATH_KEY.toString());
-			String keyStorePassword = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_PASSWORD_KEY.toString());
-			String configSecretKeyAlias = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_KEY_ALIAS_KEY.toString());
-			String configSecretKeyPassword = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_KEY_PASSWORD_KEY.toString());
-			String encodedInitializationVector = config.getString(META_CONFIG_ENCRYPTION_IV_KEY.toString());
-		
-			try (InputStream keystoreStream = classpathAwareInputStreamFactory(keystorePath)) {
-				KeyStore keyStore = KeyStore.getInstance("JCEKS");
-				keyStore.load(keystoreStream, keyStorePassword.toCharArray());
-				
-				if (!keyStore.containsAlias(configSecretKeyAlias)) {
-					LOGGER.error("The key {} was not found in the key store {}", configSecretKeyAlias, keyStore);
-					throw new IllegalStateException("Could not find the expected key in the provided keystore");
-				}
-				
-				Key aesKey = keyStore.getKey(configSecretKeyAlias, configSecretKeyPassword.toCharArray());	
-				
-				SecretKeySpec secretKeySpec = new SecretKeySpec(aesKey.getEncoded(), keyType);
-				cipher = Cipher.getInstance(encryptionAlgorithm);
-				IvParameterSpec ivParameterSpec = new IvParameterSpec(Base64.getDecoder().decode(encodedInitializationVector));
-				
-				cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-				
-			} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
-				LOGGER.error("Could not initialize the encryption scheme from the provided keystore and config data", e);
-				throw new IllegalStateException("Could not initialize the encryption scheme", e);
-			}			
+			loadEncryptionConfiguration();
 		}
 				
 		Duration duration = Duration.between(start, Instant.now());
@@ -178,6 +110,88 @@ public class WaterfallConfig {
 		LOGGER.debug("Encryption configured: {}", isEncryptionEnabled);
 	}
 	
+	private Config applyProfileToConfig(Config conf, Config applicationPropsFoundOutsideJar, Config environmentVariablesProps, Config javaSystemProps, Config applicationProps, Config commonProps) {
+		Config configRestrictedToActiveProfile;
+		String activeProfile = conf.getString(META_CONFIG_ACTIVE_PROFILE_KEY.toString());						
+		if (applicationPropsFoundOutsideJar.hasPath(activeProfile)) {
+			configRestrictedToActiveProfile = applicationPropsFoundOutsideJar.getConfig(activeProfile)
+						.withFallback(environmentVariablesProps)
+						.withFallback(javaSystemProps);
+		} else {
+			configRestrictedToActiveProfile = environmentVariablesProps
+						.withFallback(javaSystemProps);
+		}			
+		if (applicationProps.hasPath(activeProfile)) {
+			configRestrictedToActiveProfile = configRestrictedToActiveProfile
+						.withFallback(applicationProps.getConfig(activeProfile));
+		}
+		configRestrictedToActiveProfile = configRestrictedToActiveProfile
+					.withFallback(commonProps);
+		
+		return configRestrictedToActiveProfile;
+	}
+
+	private void loadEncryptionConfiguration() {
+		LOGGER.debug("Applying encryption configuration");
+		String encryptionAlgorithm = config.getString(META_CONFIG_ENCRYPTION_ALGORITHM_KEY.toString());
+		String keyType = config.getString(META_CONFIG_ENCRYPTION_KEY_TYPE_KEY.toString());
+		String keystorePath = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_PATH_KEY.toString());
+		String keyStorePassword = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_PASSWORD_KEY.toString());
+		String configSecretKeyAlias = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_KEY_ALIAS_KEY.toString());
+		String configSecretKeyPassword = config.getString(META_CONFIG_ENCRYPTION_KEY_STORE_KEY_PASSWORD_KEY.toString());
+		String encodedInitializationVector = config.getString(META_CONFIG_ENCRYPTION_IV_KEY.toString());
+	
+		try (InputStream keystoreStream = classpathAwareInputStreamFactory(keystorePath)) {
+			KeyStore keyStore = KeyStore.getInstance("JCEKS");
+			keyStore.load(keystoreStream, keyStorePassword.toCharArray());
+			
+			if (!keyStore.containsAlias(configSecretKeyAlias)) {
+				LOGGER.error("The key {} was not found in the key store {}", configSecretKeyAlias, keyStore);
+				throw new IllegalStateException("Could not find the expected key in the provided keystore");
+			}
+			
+			Key aesKey = keyStore.getKey(configSecretKeyAlias, configSecretKeyPassword.toCharArray());	
+			
+			SecretKeySpec secretKeySpec = new SecretKeySpec(aesKey.getEncoded(), keyType);
+			cipher = Cipher.getInstance(encryptionAlgorithm);
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(Base64.getDecoder().decode(encodedInitializationVector));
+			
+			cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+			LOGGER.debug("Encryption correctly initialized");
+			
+		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+			LOGGER.error("Could not initialize the encryption scheme from the provided keystore and config data", e);
+			throw new IllegalStateException("Could not initialize the encryption scheme", e);
+		}
+	}
+
+	private Config getApplicationPropsFromExternalFile(Config bootstrapConfig, String appResource) {
+		String externalAppResource = Paths.get(appResource).getFileName().toString();
+		LOGGER.debug("Checking if external file config prop file is present: {}", externalAppResource);
+		
+		List<String> externalPaths = new ArrayList<String>();
+		if (bootstrapConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {			
+			externalPaths.addAll(bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
+		} else {
+			externalPaths.add("./");
+		}
+		LOGGER.debug("Checking the following paths for external config file: {}", externalPaths);
+		Config applicationPropsFoundOutsideJar = null;
+		for (String externalAppPathPrefix : externalPaths) {
+			Path externalPropFilePath = Paths.get(externalAppPathPrefix, externalAppResource);
+			applicationPropsFoundOutsideJar = ConfigFactory.parseFile(externalPropFilePath.toFile());
+			if (!applicationPropsFoundOutsideJar.isEmpty()) {
+				LOGGER.debug("External application properties file found in {}", externalPropFilePath.toAbsolutePath());
+				break;
+			}
+		}
+		
+		if (applicationPropsFoundOutsideJar.isEmpty()) {
+			LOGGER.debug("No configuration properties found outside the JAR for {} in {}", externalAppResource, externalPaths);
+		}
+		return applicationPropsFoundOutsideJar;
+	}
+
 	/**
 	 * Access method to the configuration object
 	 *  
