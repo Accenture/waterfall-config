@@ -248,6 +248,5 @@ Note:
 The license is MIT, see [LICENSE](./LICENSE) for the details.
 
 ## Contributing
-Contributions will be gladly accepted, but this section is currently in progress.
-For general information see [general guidelines for contributing on GitHub](https://guides.github.com/activities/contributing-to-open-source/).
+Contributions will be gladly accepted. Please make sure to review our [Contribution Guide](./CONTRIBUTING.md) and the [general guidelines for contributing on GitHub](https://guides.github.com/activities/contributing-to-open-source/).
 

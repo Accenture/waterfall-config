@@ -1,7 +1,9 @@
 # Contributing
 
-> Hi!
-> Thanks for taking the time to go through this document. By doing so you will ensure an effortless and fruitful contribution process.
+> Hi! Thanks for taking the time to go through this document. By doing so you will ensure an effortless and fruitful contribution process.
+
+# New to contributing to Open Source? 
+Please make sure to review  the [general guidelines for contributing on GitHub](https://guides.github.com/activities/contributing-to-open-source/).
 
 When contributing to this project, please first discuss the change you want to make via [issue](https://github.com/Accenture/waterfall-config/issues) or start a conversation with the [owners of the project](https://github.com/orgs/Accenture/teams/waterfall-config-team). That will let them understand the intention of the contribution, and in turn they will be able to give you detailed advice about how to proceed.
 
