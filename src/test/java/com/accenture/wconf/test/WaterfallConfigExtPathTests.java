@@ -1,6 +1,5 @@
-package com.github.sergiofgonzalez.test;
+package com.accenture.wconf.test;
 
-import static com.github.sergiofgonzalez.wconf.WaterfallConfig.wconf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
@@ -13,8 +12,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
-import static com.github.sergiofgonzalez.test.utils.writers.ConfFileUtils.*;
+import com.accenture.wconf.test.utils.categories.ActiveTest;
+
+import static com.accenture.wconf.WaterfallConfig.wconf;
+import static com.accenture.wconf.test.utils.writers.ConfFileUtils.*;
 
 /**
  * Test Cases validating the scanning of external paths to find application-level properties:

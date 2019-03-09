@@ -1,4 +1,4 @@
-package com.github.sergiofgonzalez.test.utils.writers;
+package com.accenture.wconf.test.utils.writers;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
