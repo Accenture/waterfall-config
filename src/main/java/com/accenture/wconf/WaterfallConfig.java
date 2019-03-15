@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 
 /**
@@ -228,6 +230,62 @@ public class WaterfallConfig {
 		}
 		LOGGER.debug("Access to config {} to read {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));		
 		return value;
+	}
+	
+	/**
+	 * Obtains the string representation of a configuration parameter
+	 * 
+	 * @param key the key of the configuration parameter to retrieve
+	 * @return optional of string value associated to key
+	 */
+	public Optional<String> getOrElse(String key) {
+		return getConfig(key, null);
+	}
+	
+	/**
+	 * Obtains the string representation of a configuration parameter
+	 * 
+	 * @param key the key of the configuration parameter to retrieve
+	 * @param defaultValue the value to return if no configuration for key is present
+	 * @return optional of string value associated to key
+	 */
+	public Optional<String> getOrElse(String key, String defaultValue) {
+		return getConfig(key, defaultValue);
+	}
+	
+	/**
+	 * @param key the key of the configuration parameter to retrieve
+	 * @param defaultValue the value to return if no configuration for key is present
+	 * @return optional of string value associated to key
+	 */
+	public Optional<String> getConfig(String key, String defaultValue){
+		Instant start = Instant.now();
+		if(key!=null && !key.equals("")) {
+			try {
+				String value = uniqueInstance.config.getString(key);
+
+				if (value.startsWith("cipher(") && value.endsWith(")")) {
+					if (!isEncryptionEnabled) {
+						throw new IllegalStateException("Encryption has not been enabled.");
+					}
+					String cipherText = value.substring(7, value.length() - 1);
+					byte[] clearBytes;
+					try {
+						clearBytes = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+					} catch (IllegalBlockSizeException | BadPaddingException e) {
+						LOGGER.error("Error trying to decrypt key {}", key);
+						throw new IllegalArgumentException("Could not decrypt config value", e);
+					}
+					value = new String(clearBytes, StandardCharsets.UTF_8);
+				}
+				LOGGER.debug("Access to config {} to read {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));		
+				return Optional.of(value);
+			}catch(ConfigException ex) {
+				return (defaultValue!=null)?Optional.of(defaultValue):Optional.empty();
+			}
+		}else {
+			throw new IllegalArgumentException("Key is null or empty");
+		}
 	}
 	
 	/**
