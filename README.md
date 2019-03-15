@@ -1,4 +1,4 @@
-# Waterfall Config Library for Java [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.sergiofgonzalez/waterfall-config/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.sergiofgonzalez/waterfall-config) [![Build Status](https://travis-ci.org/sergiofgonzalez/waterfall-config.svg?branch=master)](https://travis-ci.org/sergiofgonzalez/waterfall-config) [![codecov](https://codecov.io/gh/sergiofgonzalez/waterfall-config/branch/master/graph/badge.svg)](https://codecov.io/gh/sergiofgonzalez/waterfall-config)
+# Waterfall Config Library for Java
 > a simplified configuration library for the JVM, heavily-based on *Typesafehub Config*, with some additional features and strongly opinionated
 
 
@@ -11,7 +11,7 @@ Use `wconf()` for configuration properties management in Java project. *wconf* a
 Modify your `pom.xml` to add a dependency for *wconf*:
 ```xml
     <dependency>
-      <groupId>com.github.sergiofgonzalez</groupId>
+      <groupId>com.accenture</groupId>
       <artifactId>waterfall-config</artifactId>
       <version>1.0.0</version>
     </dependency>
@@ -27,7 +27,7 @@ Include a static import for the `WaterfallConfig` functions and start using your
 
 ```java
 ...
-import static com.github.sergiofgonzalez.wconf.WaterfallConfig.*;
+import static com.accenture.wconf.WaterfallConfig.*;
 ...
 
     System.out.println(wconf().get("message.en"));

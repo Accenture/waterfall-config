@@ -2,14 +2,14 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>com.github.sergiofgonzalez</groupId>
+  <groupId>com.accenture</groupId>
   <artifactId>waterfall-config</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 
   <packaging>jar</packaging>  
 
   <name>waterfall-config</name>
-  <url>https://github.com/sergiofgonzalez/waterfall-config</url>
+  <url>https://github.com/Accenture/waterfall-config</url>
   <licenses>
     <license>
       <name>MIT license</name>
@@ -18,7 +18,7 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/sergiofgonzalez/waterfall-config</url>
+    <url>https://github.com/Accenture/waterfall-config</url>
   </scm>
 
   <developers>
@@ -99,7 +99,7 @@
         <version>2.20</version>
         <configuration>
           <!-- uncomment to run only the tests tagged with @Category(ActiveTest.class) 
-          <groups>com.github.sergiofgonzalez.test.utils.categories.ActiveTest</groups> 
+          <groups>com.accenture.wconf.test.utils.categories.ActiveTest</groups> 
           -->
           <reuseForks>false</reuseForks>
           <includes>

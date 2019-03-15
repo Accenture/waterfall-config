@@ -1,4 +1,4 @@
-package com.github.sergiofgonzalez.wconf;
+package com.accenture.wconf;
 
 /**
  * Enum containing the configuration keys used for the internal configuration of wconf.

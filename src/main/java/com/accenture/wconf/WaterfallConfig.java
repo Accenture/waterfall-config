@@ -1,4 +1,6 @@
-package com.github.sergiofgonzalez.wconf;
+package com.accenture.wconf;
+
+import static com.accenture.wconf.MetaConfigKeys.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import static com.github.sergiofgonzalez.wconf.MetaConfigKeys.*;
 
 /**
  * Eagerly loaded Singleton supporting wconf()

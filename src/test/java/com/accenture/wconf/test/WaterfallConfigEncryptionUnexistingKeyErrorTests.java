@@ -1,13 +1,13 @@
-package com.github.sergiofgonzalez.test;
+package com.accenture.wconf.test;
 
-import static com.github.sergiofgonzalez.wconf.WaterfallConfig.wconf;
+import static com.accenture.wconf.WaterfallConfig.wconf;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.github.sergiofgonzalez.test.utils.categories.ActiveTest;
+import com.accenture.wconf.test.utils.categories.ActiveTest;
 
 /**
  * Test Cases when:
