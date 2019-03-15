@@ -13,7 +13,7 @@ Modify your `pom.xml` to add a dependency for *wconf*:
     <dependency>
       <groupId>com.accenture</groupId>
       <artifactId>waterfall-config</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
 ```
 
