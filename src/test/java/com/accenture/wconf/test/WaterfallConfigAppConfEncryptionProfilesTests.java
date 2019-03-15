@@ -3,6 +3,8 @@ package com.accenture.wconf.test;
 import static com.accenture.wconf.WaterfallConfig.wconf;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -39,4 +41,17 @@ public class WaterfallConfigAppConfEncryptionProfilesTests {
 		String value = wconf().get("encrypted_value_in_test");
 		assertThat(value).isEqualTo("This value has been encrypted");		
 	}
+	
+	@Test
+	public void testReadEncryptedPropInActiveProfileUsingSafeGet() {
+		Optional<String> value = wconf().safeGet("encrypted_value_in_test");
+		assertThat(value).isPresent();
+		assertThat(value.get()).isEqualTo("This value has been encrypted");		
+	}	
+	
+	@Test
+	public void testReadEncryptedPropInActiveProfileUsingGetOrElse() {
+		String value = wconf().getOrElse("encrypted_value_in_test", "default-value");
+		assertThat(value).isEqualTo("This value has been encrypted");		
+	}		
 }

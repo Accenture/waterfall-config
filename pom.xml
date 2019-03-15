@@ -4,7 +4,7 @@
   
   <groupId>com.accenture</groupId>
   <artifactId>waterfall-config</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
 
   <packaging>jar</packaging>  
 
@@ -124,6 +124,12 @@
             
             <!-- Scanning of External Paths Tests -->
             <include>WaterfallConfigExtPathTests</include>
+            
+            <!-- Multivalued Result Tests -->
+            <include>WaterfallConfigMultiValuedTests</include>
+            
+            <!-- Negative scenarios -->
+            <include>WaterfallConfigNegativeTests</include>
           </includes>
           <environmentVariables>
             <in_common_but_overridden_by_env>This value has been set in an environment variable</in_common_but_overridden_by_env>
