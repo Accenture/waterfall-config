@@ -234,7 +234,7 @@ Note that the variables susceptible of being overridden by environment variables
 
 *wconf* is targeted for lightweight, non-container based, read-only, non-refreshable use cases. If your use case allows for an IoC container I recommend you to have a look at [Spring Boot](https://projects.spring.io/spring-boot/). 
 
-If the opinionated choices of *wconf* are not acceptable, feel free to fork and modify the project, or fallback to the awesome framework in which *wconf* relies: [Typesafehub Config](https://github.com/typesafehub/config).
+If the opinionated choices of *wconf* are not acceptable, feel free to fork and modify the project, or fallback to the awesome framework on which *wconf* relies: [Typesafehub Config](https://github.com/typesafehub/config).
 
 ## Tests and Examples
 Tests can be found under `src/test/resources` and those serve also as usage examples for both accessing config properties and specifying configuration properties.
