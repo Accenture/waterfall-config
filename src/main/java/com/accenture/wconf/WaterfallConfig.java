@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 
 /**
@@ -210,6 +212,124 @@ public class WaterfallConfig {
 	 */
 	public String get(String key) {
 		Instant start = Instant.now();
+		String value = getConfig(key);
+		LOGGER.debug("Access to config {} to get {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));		
+		return value;
+	}
+	
+	/**
+	 * Obtains the string representation of a configuration parameter or Optional.empty()
+	 * 
+	 * @param key the key of the configuration parameter to retrieve
+	 * @return optional of string value associated to key
+	 */
+	public Optional<String> safeGet(String key) {
+		Instant start = Instant.now();
+		Optional<String> result;
+		try {
+			result = Optional.of(get(key));
+		} catch (ConfigException e) {
+			LOGGER.warn("No value was found for key {}: an Optional.empty() will be returned", key);
+			result = Optional.empty();
+		}
+		LOGGER.debug("Access to config {} to safeGet {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));
+		return result;
+	}
+	
+	/**
+	 * Obtains the string representation of a configuration parameter or the default value if it does not exist
+	 * 
+	 * @param key the key of the configuration parameter to retrieve
+	 * @param defaultValue the value to return if no configuration for the key is present
+	 * @return the string value associated to key
+	 */
+	public String getOrElse(String key, String defaultValue) {
+		Instant start = Instant.now();
+		String result;
+		try {
+			result = get(key);
+		} catch (ConfigException e) {
+			LOGGER.warn("No value was found for key {}: the default value {} will be returned", key, defaultValue);
+			result = defaultValue;
+		}
+		LOGGER.debug("Access to config {} to getOrElse {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));		
+		return result;		
+	}
+	
+
+	/**
+	 * Obtains the list of strings for a given configuration property key 
+	 * @param key the property key of the value to retrieved
+	 * @param isMultivalued a dummy parameter used to indicate we're interested in a multivalued property
+	 * @return the list of values associated to the given property key
+	 */
+	public List<String> get(String key, boolean isMultivalued) {
+		Instant start = Instant.now();
+		List<String> values = uniqueInstance.config.getStringList(key);
+		LOGGER.debug("Access to config multivalued {} to get {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));
+		return values;
+	}
+	
+	/**
+	 * Obtains the list of strings for a given configuration property key or an Optional.empty() if no value was found
+	 * @param key the property key of the value to retrieved
+	 * @param isMultivalued a dummy parameter used to indicate we're interested in a multivalued property
+	 * @return the list of values associated to the given property key
+	 */
+	public Optional<List<String>> safeGet(String key, boolean isMultiValued) {
+		if (key == null || key.isEmpty()) {
+			LOGGER.error("safeGet multivalued requires a non-null/non-empty argument");
+			throw new IllegalArgumentException("safeGet multivalued requires a non-null/non-empty argument");
+		}
+		Instant start = Instant.now();
+		Optional<List<String>> result;
+		try {
+			result = Optional.of(uniqueInstance.config.getStringList(key));
+		} catch (ConfigException e) {
+			LOGGER.warn("No multi-value was found for key {}: an Optional.empty() will be returned", key);
+			result = Optional.empty();
+		}
+		LOGGER.debug("Access to config multivalued {} to safeGet {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));		
+		return result;
+	}
+	
+	/**
+	 * Obtains the list of strings for a given configuration property key or the default value passed if no value was found
+	 * @param key the property key of the value to retrieved
+	 * @param defaultValue the value to return if no configuration for the key is present 
+	 * @param isMultivalued a dummy parameter used to indicate we're interested in a multivalued property
+	 * @return the list of values associated to the given property key
+	 */	
+	public List<String> getOrElse(String key, List<String> defaultValue, boolean isMultiValued) {
+		if (key == null || key.isEmpty()) {
+			LOGGER.error("getOrElse multivalued requires a non-null/non-empty argument");
+			throw new IllegalArgumentException("getOrElse multivalued requires a non-null/non-empty argument");			
+		}
+		List<String> result;
+		try {
+			result = get(key, isMultiValued);
+		} catch (ConfigException e) {
+			LOGGER.warn("No multi-value was found for key {}: an Optional.empty() will be returned", key);
+			result = defaultValue;
+		}
+		return result;
+	}
+	
+	private static InputStream classpathAwareInputStreamFactory(String filePath) throws IOException {
+		if (filePath.startsWith("classpath://")) {
+			String internalPath = filePath.substring("classpath://".length());
+			return WaterfallConfig.class.getClassLoader().getResourceAsStream(internalPath);			
+		} else {
+			return new FileInputStream(filePath);
+		}		
+	}
+	
+	private String getConfig(String key) {
+		if (key == null || key.isEmpty()) {
+			LOGGER.error("The given configuration key is null or empty");
+			throw new IllegalArgumentException("The given configuration key is null or empty");
+		}
+		
 		String value = uniqueInstance.config.getString(key);
 	
 		if (value.startsWith("cipher(") && value.endsWith(")")) {
@@ -226,31 +346,6 @@ public class WaterfallConfig {
 			}
 			value = new String(clearBytes, StandardCharsets.UTF_8);
 		}
-		LOGGER.debug("Access to config {} to read {} took {}", uniqueInstance.instanceUUID, key, Duration.between(start, Instant.now()));		
 		return value;
-	}
-	
-	/**
-	 * <b>Experimental</b>
-	 * Obtains the list of strings for a given configuration property key 
-	 * @param key the property key of the value to retrieved
-	 * @param isMultivalued a dummy parameter used to indicate we're interested in a multivalued property
-	 * @return the list of values associated to the given property key
-	 */
-	public List<String> get(String key, boolean isMultivalued) {
-		Instant start = Instant.now();
-		List<String> values = uniqueInstance.config.getStringList(key);
-		LOGGER.debug("Access to config {} took {}", uniqueInstance.instanceUUID, Duration.between(start, Instant.now()));
-		return values;
-	}
-	
-	
-	private static InputStream classpathAwareInputStreamFactory(String filePath) throws IOException {
-		if (filePath.startsWith("classpath://")) {
-			String internalPath = filePath.substring("classpath://".length());
-			return WaterfallConfig.class.getClassLoader().getResourceAsStream(internalPath);			
-		} else {
-			return new FileInputStream(filePath);
-		}		
 	}
 }
