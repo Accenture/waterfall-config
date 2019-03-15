@@ -273,7 +273,7 @@ public class WaterfallConfig {
 	/**
 	 * Obtains the list of strings for a given configuration property key or an Optional.empty() if no value was found
 	 * @param key the property key of the value to retrieved
-	 * @param isMultivalued a dummy parameter used to indicate we're interested in a multivalued property
+	 * @param isMultiValued a dummy parameter used to indicate we're interested in a multivalued property
 	 * @return the list of values associated to the given property key
 	 */
 	public Optional<List<String>> safeGet(String key, boolean isMultiValued) {
@@ -297,7 +297,7 @@ public class WaterfallConfig {
 	 * Obtains the list of strings for a given configuration property key or the default value passed if no value was found
 	 * @param key the property key of the value to retrieved
 	 * @param defaultValue the value to return if no configuration for the key is present 
-	 * @param isMultivalued a dummy parameter used to indicate we're interested in a multivalued property
+	 * @param isMultiValued a dummy parameter used to indicate we're interested in a multivalued property
 	 * @return the list of values associated to the given property key
 	 */	
 	public List<String> getOrElse(String key, List<String> defaultValue, boolean isMultiValued) {
