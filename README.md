@@ -1,5 +1,5 @@
 # Waterfall Config Library for Java [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.accenture/waterfall-config/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.accenture/waterfall-config) [![Build Status](https://travis-ci.org/Accenture/waterfall-config.svg?branch=master)](https://travis-ci.org/Accenture/waterfall-config) [![codecov](https://codecov.io/gh/Accenture/waterfall-config/branch/master/graph/badge.svg)](https://codecov.io/gh/Accenture/waterfall-config)
-> a simplified configuration library for the JVM, heavily-based on *Typesafehub Config*, with some additional features and strongly opinionated
+> a *simplistic* configuration library for the JVM, heavily-based on *Typesafehub Config*, with some additional features and strongly opinionated
 
 
 
