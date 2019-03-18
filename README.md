@@ -1,4 +1,5 @@
-# Waterfall Config Library for Java ![Maven Central](https://img.shields.io/maven-central/v/com.accenture/waterfall-config.svg?style=plastic) [![Build Status](https://travis-ci.org/Accenture/waterfall-config.svg?branch=master)](https://travis-ci.org/Accenture/waterfall-config) [![codecov](https://codecov.io/gh/Accenture/waterfall-config/branch/master/graph/badge.svg)](https://codecov.io/gh/Accenture/waterfall-config) ![GitHub](https://img.shields.io/github/license/Accenture/waterfall-config.svg?color=blue)
+# Waterfall Config Library for Java 
+![Maven Central](https://img.shields.io/maven-central/v/com.accenture/waterfall-config.svg) [![Build Status](https://travis-ci.org/Accenture/waterfall-config.svg?branch=master)](https://travis-ci.org/Accenture/waterfall-config) [![codecov](https://codecov.io/gh/Accenture/waterfall-config/branch/master/graph/badge.svg)](https://codecov.io/gh/Accenture/waterfall-config) ![GitHub](https://img.shields.io/github/license/Accenture/waterfall-config.svg?color=blue)
 > a *simplistic* configuration library for the JVM, heavily-based on *Typesafehub Config*, with some additional features and strongly opinionated
 
 # wconf()
