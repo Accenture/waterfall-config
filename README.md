@@ -83,7 +83,7 @@ but it can also be specified using environment variables and properties using th
 Setting the value of `wconf_ext_app_properties_paths` in the application-level property file will have **no effect**, as this value is needed in creation time while the application level property source is being discovered.  
   
 ## Syntax for Configuration Files
-The syntax for configuration files is a JSON superset called *HOCON* that is used by the library doing all the heavy lifting for *wconf* (see [Typesafehub Config](https://github.com/typesafehub/config#user-content-using-hocon-the-json-superset).
+The syntax for configuration files is a JSON superset called *HOCON* that is used by the library doing all the heavy lifting for *wconf* (see [Typesafehub Config](https://github.com/typesafehub/config#user-content-using-hocon-the-json-superset)).
 
 *HOCON* allows you to use plain java-style properties if that is what you like:
 ```
@@ -141,7 +141,7 @@ You can find examples of profile usage in the test section.
 ## Encrypted Properties
 A recurring requirement for configuration properties is the support of symmetric encryption for sensible data such as datasource passwords.
 
-*wconf* features support for flexible encryption of configuration properties using the Java Cryptography Extension (JCE). Please note that you should be aware of the best practices and recommendations when using this feature, as symmetric encryption is useless is the key is handled carelessly (distributed without proper control or committed to your source code repository).
+*wconf* features support for flexible encryption of configuration properties using the Java Cryptography Extension (JCE). Please note that you should be aware of the best practices and recommendations when using this feature, as symmetric encryption is useless if the key is handled carelessly (distributed without proper control or committed to your source code repository).
 
 **Note**
 + The keystore and key found in the test section is provided for **demonstration purposes** and should **not** be used in applications.
@@ -210,7 +210,7 @@ If you don't know how to generate an *"encrypted and then encoded in Base64 valu
 ## Reserved Configuration Property Names
 The configuration properties used to configure *wconf* are always prepended with `wconf_` and are reserved.
 
-The current list all these reserved property names and their descriptions:
+The following table lists all these reserved property names and their descriptions:
 
 | Reserved Property Name | Description | Default|
 |------------------------|-------------|--------|
@@ -226,7 +226,7 @@ The current list all these reserved property names and their descriptions:
 | wconf_encryption.key_store.key.alias | the key alias, that is the string, used to identify the key to use for the symmetric encryption from the ones defined in the key store,  e.g.wconf-secret-key | n/a |
 | wconf_encryption.key_store.key.password | the password key that provides access to the key to use for the symmetric encryption, e.g. mykeypasswd | n/a |
 
-Note that the variables susceptible of being overridden by environment variables do not use `.` as there are operating systems that prevent variables such as `profile.active` from being defined.
+Note that the variables susceptible of being overridden by environment variables do not use `.` as there are operating systems that do not allow environment variable names such as `profile.active` from being defined.
 
 ## Implementation Details and Recommendations
 *wconf* is defined as an eagerly-loaded singleton that loads and preconfigures the *Typesafehub Config* framework according to a set of predefined choices.
