@@ -1,6 +1,16 @@
 package com.accenture.wconf;
 
-import static com.accenture.wconf.MetaConfigKeys.*;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ACTIVE_PROFILE_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_APP_RESOURCE_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_ALGORITHM_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_IV_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_KEY_ALIAS_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_KEY_PASSWORD_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_PASSWORD_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_PATH_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_TYPE_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_SWITCH_KEY;
+import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,6 +33,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -107,10 +118,13 @@ public class WaterfallConfig {
 		if (isEncryptionEnabled) {
 			loadEncryptionConfiguration();
 		}
+		
+
 				
 		Duration duration = Duration.between(start, Instant.now());
 		LOGGER.debug("Config initialization took {}", duration);
 		LOGGER.debug("Encryption configured: {}", isEncryptionEnabled);
+		
 	}
 	
 	private Config applyProfileToConfig(Config conf, Config applicationPropsFoundOutsideJar, Config environmentVariablesProps, Config javaSystemProps, Config applicationProps, Config commonProps) {
@@ -175,6 +189,17 @@ public class WaterfallConfig {
 		List<String> externalPaths = new ArrayList<String>();
 		if (bootstrapConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {			
 			externalPaths.addAll(bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
+			if (bootstrapConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {
+				if (bootstrapConfig.getAnyRef(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()) instanceof String) {
+					externalPaths.add(bootstrapConfig.getString(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
+				} else {
+				LOGGER.info("found external path ==>"+bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
+				externalPaths.addAll(bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
+				}
+			} 
+			else {
+				externalPaths.add("./");
+			}
 		} else {
 			externalPaths.add("./");
 		}
