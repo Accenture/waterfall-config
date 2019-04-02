@@ -4,7 +4,7 @@
   
   <groupId>com.accenture</groupId>
   <artifactId>waterfall-config</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1-SNAPSHOT</version>
 
   <packaging>jar</packaging>  
 
@@ -124,6 +124,7 @@
             
             <!-- Scanning of External Paths Tests -->
             <include>WaterfallConfigExtPathTests</include>
+            <include>WaterfallConfigExtPathSingleValueTests</include>
             
             <!-- Multivalued Result Tests -->
             <include>WaterfallConfigMultiValuedTests</include>
