@@ -12,7 +12,7 @@ Modify your `pom.xml` to add a dependency for *wconf*:
     <dependency>
       <groupId>com.accenture</groupId>
       <artifactId>waterfall-config</artifactId>
-      <version>1.1.0</version>
+      <version>1.1.1</version>
     </dependency>
 ```
 
@@ -78,7 +78,14 @@ but it can also be specified using environment variables and properties using th
 -D wconf_ext_app_properties_paths.1="./tmp/" \
 -D wconf_ext_app_properties_paths.2="./shared-volume/"
 ```
-  
+
+and for simplicity, you can also specify a single path, when passing an array in the command-line represents a problem:
+
+```
+-D wconf_ext_app_properties_paths="./shared-volume/"
+```
+
+
 **Note**
 Setting the value of `wconf_ext_app_properties_paths` in the application-level property file will have **no effect**, as this value is needed in creation time while the application level property source is being discovered.  
   

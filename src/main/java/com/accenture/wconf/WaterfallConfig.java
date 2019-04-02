@@ -1,17 +1,6 @@
 package com.accenture.wconf;
 
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ACTIVE_PROFILE_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_APP_RESOURCE_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_ALGORITHM_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_IV_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_KEY_ALIAS_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_KEY_PASSWORD_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_PASSWORD_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_STORE_PATH_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_KEY_TYPE_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_ENCRYPTION_SWITCH_KEY;
-import static com.accenture.wconf.MetaConfigKeys.META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS;
-
+import static com.accenture.wconf.MetaConfigKeys.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueType;
 
 /**
  * Eagerly loaded Singleton supporting wconf()
@@ -185,37 +175,30 @@ public class WaterfallConfig {
 	private Config getApplicationPropsFromExternalFile(Config bootstrapConfig, String appResource) {
 		String externalAppResource = Paths.get(appResource).getFileName().toString();
 		LOGGER.debug("Checking if external file config prop file is present: {}", externalAppResource);
-		
+
 		List<String> externalPaths = new ArrayList<String>();
-		if (bootstrapConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {			
-			externalPaths.addAll(bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
-			if (bootstrapConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {
-				if (bootstrapConfig.getAnyRef(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()) instanceof String) {
-					externalPaths.add(bootstrapConfig.getString(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
-				} else {
-				LOGGER.info("found external path ==>"+bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
-				externalPaths.addAll(bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));
-				}
-			} 
-			else {
-				externalPaths.add("./");
+		if (bootstrapConfig.hasPath(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString())) {
+			if (bootstrapConfig.getValue(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()).valueType() == ConfigValueType.STRING) {
+				externalPaths.add(bootstrapConfig.getString(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));				
+			} else {
+				externalPaths.addAll(bootstrapConfig.getStringList(META_CONFIG_EXT_APP_RESOURCE_ADDITIONAL_PATHS.toString()));				
 			}
 		} else {
 			externalPaths.add("./");
 		}
-		LOGGER.debug("Checking the following paths for external config file: {}", externalPaths);
+		LOGGER.info("Checking the following paths for external config file: {}", externalPaths);
 		Config applicationPropsFoundOutsideJar = null;
 		for (String externalAppPathPrefix : externalPaths) {
 			Path externalPropFilePath = Paths.get(externalAppPathPrefix, externalAppResource);
 			applicationPropsFoundOutsideJar = ConfigFactory.parseFile(externalPropFilePath.toFile());
 			if (!applicationPropsFoundOutsideJar.isEmpty()) {
-				LOGGER.debug("External application properties file found in {}", externalPropFilePath.toAbsolutePath());
+				LOGGER.info("External application properties file found in {}", externalPropFilePath.toAbsolutePath());
 				break;
 			}
 		}
 		
 		if (applicationPropsFoundOutsideJar.isEmpty()) {
-			LOGGER.debug("No configuration properties found outside the JAR for {} in {}", externalAppResource, externalPaths);
+			LOGGER.info("No configuration properties found outside the JAR for {} in {}", externalAppResource, externalPaths);
 		}
 		return applicationPropsFoundOutsideJar;
 	}
